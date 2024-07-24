@@ -15,22 +15,94 @@
 // 139 154
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 
-void initialize(int *p[], int column, int row){
+void initialize(int **p, int row, int column);
+void random_array(int **p, int row, int column);
+void print_array(int **p, int row, int column);
+void mutiply_array(int **pA, int **pB, int **pC, int m, int n, int p);
 
-    for(int i = 0; i < column; i ++){
-        for(int j = 0; j < row; j ++){
-            p[i][j] = 1;
+
+int main(void){
+
+    srand(time(0));
+    int m, n, p;
+    printf("依序指定m n p的值: ");
+    scanf("%d%d%d", &m, &n, &p);
+
+    int A[m][n];
+    int *pA[m];
+    for(int i = 0; i < m; i ++){
+        pA[i] = A[i];
+    }
+    initialize(pA, m, n);
+    random_array(pA, m, n);
+
+    int B[n][p];
+    int *pB[n];
+    for(int i = 0; i < n; i ++){
+        pB[i] = B[i];
+    }
+    initialize(pB, n, p);
+    random_array(pB, n, p);
+
+    int C[m][p];
+    int *pC[m];
+    for(int i = 0; i < m; i ++){
+        pC[i] = C[i];
+    }
+    initialize(pC, m, p);
+    mutiply_array(pA, pB, pC, m, n, p);
+
+    printf("A: (%d * %d)\n", m, n);
+    print_array(pA, m, n);
+    printf("B: (%d * %d)\n", n, p);
+    print_array(pB, n, p);
+    printf("C: (%d * %d)\n", m, p);
+    print_array(pC, m, p);
+    return 0;
+
+}
+
+void initialize(int **p, int row, int column){
+
+    for(int i = 0; i < row; i ++){
+        for(int j = 0; j < column; j ++){
+            p[i][j] = -1;
         }
     }
 
 }
 
-void print_array(int **p, int column, int row){
+void random_array(int **p, int row, int column){
 
-    for(int i = 0; i < column; i ++){
-        for(int j = 0; j < row; j ++){
+    int random_number;
+    int check[row * column];
+    for(int i = 0; i < (row * column); i ++){
+        check[i] = -1;
+    }
+    for(int i = 0; i < row; i ++){
+        for(int j = 0; j < column; j ++){
+            while(p[i][j] == -1){
+                p[i][j] = rand() % (row * column);
+                if(check[p[i][j]] == -1){
+                    check[p[i][j]] = 1;
+                }
+                else{
+                    p[i][j] = -1;
+                }
+            }
+        }
+    }
+    
+}
+
+void print_array(int **p, int row, int column){
+
+    for(int i = 0; i < row; i ++){
+        for(int j = 0; j < column; j ++){
             printf("%d ", p[i][j]);
         }
         printf("\n");
@@ -39,46 +111,41 @@ void print_array(int **p, int column, int row){
 
 }
 
-int main(void){
+void mutiply_array(int **pA, int **pB, int **pC, int m, int n, int p){
 
-    // int m, n, p;
-    // printf("請指定 m, n, p: ");
-    // scanf("%d%d%d", &m, &n, &p);
-    int A[2][3];
-    int B[2][3];
-    for(int i = 0; i < 2; i ++){
-        for(int j = 0; j < 3; j ++){
-            A[i][j] = 1;
-            B[i][j] = 2;
+    int rowA = 0;
+    int rowB = 0;
+    int rowC = 0;
+    int columnA = 0;
+    int columnB = 0;
+    int columnC = 0;
+    int multiply = 0;
+    int valueC = 0;
+    printf("\n矩陣相乘區:\n");
+    for(int i = 0; i < m; i ++){
+        for(int j = 0; j < p; j ++){   
+            for(int k = 0; k < n; k ++){
+                int valueA = pA[rowA][columnA]; //取得矩陣A在該位置的值
+                int valueB = pB[rowB][columnB]; //取得矩陣B在該位置的值
+                multiply = valueA * valueB; //相乘
+                printf("(%d*%d) %2d + ", valueA, valueB, multiply); //印出相乘的數字跟相乘的積
+                valueC += multiply; //將乘積加起來
+                rowB ++; //矩陣B換列
+                columnA ++; //矩陣A換行
+            }
+            rowB = 0; //矩陣B 乘過的列數重置
+            columnA = 0; //矩陣A 乘過的行數重置
+            printf(", valueC = %d\n", valueC); //印出C要帶入什麼值
+            pC[rowC][columnC] = valueC; //數值帶入矩陣C
+            valueC = 0; //數值歸0繼續進行下一次乘法
+            columnB ++; //矩陣A保持同一列，矩陣B換行
+            columnC ++; //矩陣C換行
         }
-    }
-
-    int *pB[2] = {B[0],B[1]};
-
-    printf("A:\n");
-    for(int i = 0; i < 2; i ++){
-        for(int j = 0; j < 3; j ++){
-            printf("%d ", A[i][j]);
-        }
-        printf("\n");
+        rowA ++; 
+        columnB = 0;
+        rowC ++;
+        columnC = 0;
     }
     printf("\n");
 
-    printf("B:\n");
-    print_array(pB, 2, 3);
-
-    return 0;
-
 }
-
-// void initialize(int *array [], int *column, int *row){
-
-//     // int *array       是一個"指向陣列的指標"
-//     // int *array []    是一個"指向陣列的指標的陣列"
-//     for(int i = 0; i < *column; i ++){
-//         for(int j = 0; j < *row; j ++){
-//             array[i][j] = 0;
-//         }
-//     }
-
-// }
