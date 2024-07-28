@@ -38,10 +38,78 @@ int scan_char(char **ptr2arr){
     return length;
 
 }
+    //Ex: ({)} -> 不成對, (){} -> 成對
+    // ({[(])})      X
+    // ()[]({})      V
+    // (({}[]))      V
+int find(char **ptr2arr, int *ptr2check, int length, int current_position, char A){
+
+    int target_position = -1;
+    int previous = 1000;
+    for(int i = 0; i < current_position; i ++){
+        printf("   ");
+    }
+    printf("進入%d層遞迴", current_position);
+    printf(", 目前的字元:\"%c\"", (*ptr2arr)[current_position]);
+    printf(", current_position: %d\n", current_position);
+    for(int i = (current_position + 1); i < length; i ++){
+        if(ptr2check[i] == 1 && ((*ptr2arr)[i] == '(' || (*ptr2arr)[i] == '[' || (*ptr2arr)[i] == '{')){
+            previous = find(ptr2arr, ptr2check, length, i, (*ptr2arr)[i]);
+        }
+        if(ptr2check[current_position] == 1){
+            switch((*ptr2arr)[current_position]){
+                case '(':
+                    if((*ptr2arr)[i] == ')' && ptr2check[i] == 1){
+                        target_position = i;
+                        if(target_position > previous){
+                            printf("不成對\n");
+                            return 0;
+                        }
+                        ptr2check[current_position] = 0;
+                        ptr2check[target_position] = 0;
+                        printf("找到成對(): %c,%c\n", (*ptr2arr)[current_position], (*ptr2arr)[target_position]);
+                        break;
+                    }
+                case '[':
+                    if((*ptr2arr)[i] == ']' && ptr2check[i] == 1){
+                        target_position = i;
+                        if(target_position > previous){
+                            printf("不成對\n");
+                            return 0;
+                        }
+                        ptr2check[current_position] = 0;
+                        ptr2check[target_position] = 0;
+                        printf("找到成對[]: %c,%c\n", (*ptr2arr)[current_position], (*ptr2arr)[target_position]);
+                        break;
+                    }
+                case '{':
+                    if((*ptr2arr)[i] == '}' && ptr2check[i] == 1){
+                        target_position = i;
+                        if(target_position > previous){
+                            printf("不成對\n");
+                            return 0;
+                        }
+                        ptr2check[current_position] = 0;
+                        ptr2check[target_position] = 0;
+                        printf("找到成對{}: %c,%c\n", (*ptr2arr)[current_position], (*ptr2arr)[target_position]);
+                        break;
+                    }
+            }
+        }
+    }
+    for(int i = 0; i < current_position; i ++){
+        printf("   ");
+    }
+    printf("離開%d層遞迴\n", current_position);
+    return target_position;
+
+}
 
 void matched_parentheses(char **ptr2arr, int length){
 
-    int check_order[3] = {0}; //條件1: 出現順序
+    //條件1: 出現順序(是否遵循先左括號才右括號)
+    //Ex: )([] -> 不成對, ()[] -> 成對
+    int check_order[3] = {0}; 
     for(int i = 0; i < length; i ++){
         switch((*ptr2arr)[i]){
             case '(':
@@ -85,8 +153,9 @@ void matched_parentheses(char **ptr2arr, int length){
         printf("不成對\n");
         return;
     }
-
-    int check_count[6] = {0}; //條件2: 出現數量
+    //條件2: 出現數量(括號是否成對出現)
+    //Ex: ()[ -> 不成對, ()[] -> 成對
+    int check_count[6] = {0}; 
     for(int i = 0; i < length; i ++){
         switch((*ptr2arr)[i]){
             case '(':
@@ -121,69 +190,33 @@ void matched_parentheses(char **ptr2arr, int length){
         printf("不成對\n");
         return;
     }
-
-    int check[length]; //條件3: 有沒有被隔開
+    //條件3: 括號是否在相同區間內
+    //Ex: ({)} -> 不成對, (){} -> 成對
+    // ({[(])})      X
+    // ()[]({})      V
+    // (({}[]))      V
+    // (*ptr2arr)[i];
+    int check[length];
+    int *ptr2check = check;
     for(int i = 0; i < length; i ++){
-        check[i] = 0;
+        check[i] = 1;
     }
-    int site = length - 1;
+    find(ptr2arr, ptr2check, length, 0, (*ptr2arr)[0]);
+    printf("check: ");
     for(int i = 0; i < length; i ++){
-        if(check[i] == 0){
-            continue;
-        }
-        switch((*ptr2arr)[i]){
-            case '(':
-                for(int j = i + 1; j < length; j ++){
-                    if(check[j] == 0){
-                        continue;
-                    }
-                    if((*ptr2arr)[j] == ')'){
-                        if(i < site && j > site){
-                            printf("不成對\n");
-                            return;
-                        }
-                        site = j;
-                        check[i] = 0;
-                        check[j] = 0;
-                    }
-                }
-                break;
-            case '[':
-                for(int j = i + 1; j < length; j ++){
-                    if(check[j] == 0){
-                        continue;
-                    }
-                    if((*ptr2arr)[j] == ']'){
-                        if(i < site && j > site){
-                            printf("不成對\n");
-                            return;
-                        }
-                        site = j;
-                        check[i] = 0;
-                        check[j] = 0;
-                    }
-                }
-                break;
-            case '{':
-                for(int j = i + 1; j < length; j ++){
-                    if(check[j] == 0){
-                        continue;
-                    }
-                    if((*ptr2arr)[j] == '}'){
-                        if(i < site && j > site){
-                            printf("不成對\n");
-                            return;
-                        }
-                        site = j;
-                        check[i] = 0;
-                        check[j] = 0;
-                    }
-                }
-                break;
-        }
+        printf("%d ", check[i]);
     }
-    printf("成對\n");
+    printf("\n");
+    // for(int i = 0; i < length; i ++){
+    //     if(check[i] = 0){
+    //         printf("不成對\n");
+    //         return;
+    //     }
+    // }
+    // printf("成對\n");
 }
+
+
 
 int main(void){
 
