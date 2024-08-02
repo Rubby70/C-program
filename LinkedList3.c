@@ -40,6 +40,26 @@ int main(void){
     node linkedlist[5];
     node *ptr2LL_main = NULL;
     buildLL_2(&ptr2LL_main, linkedlist, carname, 5);
+
+    //add
+    char target[5] = "C";
+    node additionallist;
+    int count = 0;
+    // while(ptr2LL_main != NULL){
+    //     if(ptr2LL_main->carlist.brandname == target){
+    //         printf("found: %d\n", count);
+    //         node *temp = ptr2LL_main->ptr2node;
+    //         ptr2LL_main->ptr2node = &additionallist;
+    //         additionallist.ptr2node = temp;
+    //         break;
+    //     }
+    //     ptr2LL_main = ptr2LL_main->ptr2node;
+    //     count ++;
+    // }
+    while(ptr2LL_main != NULL){
+        printf("%s\n", ptr2LL_main->carlist.brandname);
+        ptr2LL_main = ptr2LL_main->ptr2node;
+    }
     return 0;
 
 }
