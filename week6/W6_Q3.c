@@ -24,7 +24,6 @@ int main(void){
     // method 3 *************
     printf("%ld\n", (int *)(&Array + 1) - (int *)&Array);
 
-
     printf("Array = [ ");
     for(int i = 0; i < length; i ++){
         printf("%d ", Array[i]);
